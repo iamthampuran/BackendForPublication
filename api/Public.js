@@ -90,6 +90,7 @@ router.post('/retrieve', (req,res) =>{
                     message: "Found!!",
                     data: data
                 })
+                console.log("Result: ",data)
             }
             else{
                 res.json({
@@ -190,8 +191,12 @@ router.get('/verified', (req,res) =>{
                     message: "Publication added to permanent database",
                     data: result
                 });
-                
-                publication.deleteOne(data[0])
+                console.log(Title)
+                publication.findOneAndDelete({"Title":data[0].Title}).then(data1 =>
+                    {
+                        console.log("File\n:",data1)
+                    })
+                console.log(publication.find())
             })
             
         }
