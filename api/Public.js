@@ -1,25 +1,27 @@
 const express = require('express')
 const PermPublication = require('./../models/PemPublication')
 const router = express.Router()
-const publication = require('./../models/User')
+const publication = require('../models/Publications')
 //const data = require('./data')
 
 
-router.get('/add',(req,res) => {
-    let{Faculties,Title,Required,DateOfApproval,Type,SubType,PublicationName,ImpactFactor,Affiliated} = req.body
+router.post('/add',(req,res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    let{Year,Title,Faculties,Type,SubType,Name,Details,ImpactFactor,Affiliated,Branch} = req.body
     console.log(req.body)
     console.log('F =', Faculties)
-    Faculties = Faculties.trim()
+    
     Title = Title.trim()
-    Required = Required.trim()
-    DateOfApproval = DateOfApproval
-    Type = Type.trim()   
+    Faculties = Faculties.trim()
+    Type = Type.trim()
     SubType = SubType.trim()
-    PublicationName = PublicationName.trim()
+    Name = Name.trim()
+    Details = Details.trim()
     ImpactFactor = ImpactFactor.trim()
     Affiliated = Affiliated.trim()
+    Branch = Branch.trim()
     //checking if the fields are empty
-    if(Faculties == "" || Title == "" || DateOfApproval == "" || Required == "" || Type == "" || SubType == "" || PublicationName == "" || ImpactFactor == "" || Affiliated == ""){
+    if(Year == "" ||Title == "" || Faculties == "" || Type == "" || SubType == "" || Name == "" || Details == "" || ImpactFactor == "" || Affiliated == "" || Branch == ""){
         res.json({
             status: "FAILED",
             message: "Empty field"
@@ -37,15 +39,7 @@ router.get('/add',(req,res) => {
             }
             else{
                 const newPublication = new publication({
-                    Faculties,
-                    Title,
-                    Required,
-                    DateOfApproval,
-                    Type,
-                    SubType,
-                    PublicationName,
-                    ImpactFactor,
-                    Affiliated
+                    Year,Title,Faculties,Type,SubType,Name,Details,ImpactFactor,Affiliated,Branch
                 });
                 newPublication.save().then(result => {
                     res.json({
@@ -71,6 +65,7 @@ router.get('/add',(req,res) => {
 
 router.post('/retrieve', (req,res) =>{
     //let{Title} = req.body
+    res.header("Access-Control-Allow-Origin", "*");
     console.log('Request: ',req.body)
     //console.log('Title = ',Title)
     if(req.body == ""){
@@ -81,14 +76,14 @@ router.post('/retrieve', (req,res) =>{
     }
     else{
         //console.log('titke=',Title)
-        publication.find(req.body)
+        PermPublication.find(req.body)
         .then( data => {
             console.log(data)
             if (data.length){
                 res.json({
                     status: "SUCCESS",
                     message: "Found!!",
-                    data: data
+                    data
                 })
                 console.log("Result: ",data)
             }
@@ -161,12 +156,13 @@ router.get('/filter', (req,res) =>
 
 
 
-router.get('/verified', (req,res) =>{
+router.post('/verified', (req,res) =>{
     console.log(req.body)
-    let {Title} = req.body
+    let {Title,Confirm} = req.body
     console.log(Title)
     Title = Title.trim()
-    publication.find({Title})
+    if(Confirm=="Yes"){
+        publication.find({Title})
     .then(data =>{
         if(data.length){
             console.log(data)
@@ -174,13 +170,14 @@ router.get('/verified', (req,res) =>{
             newdata = {
                 Faculties: data[0].Faculties,
                 Title: data[0].Title,
-                Required: data[0].Required,
-                DateOfApproval: data[0].DateOfApproval,
+                Year: data[0].Year,
                 Type: data[0].Type,
                 SubType: data[0].SubType,
-                PublicationName: data[0].PublicationName,
+                Name: data[0].Name,
+                Details: data[0].Details,
                 ImpactFactor: data[0].ImpactFactor,
-                Affiliated: data[0].Affiliated
+                Affiliated: data[0].Affiliated,
+                Branch: data[0].Branch
             }
             console.log(newdata)
             const newPermpublication = new PermPublication(newdata);
@@ -207,6 +204,18 @@ router.get('/verified', (req,res) =>{
             })
         }
     })
+    }
+    else{
+        publication.findOneAndDelete({"Title":data[0].Title}).then(data1 =>
+            {
+                console.log("File\n:",data1)
+                res.json({
+                    status: "SUCCESS",
+                    message: "Sucessfully Removed"
+                })
+            })
+    }
+    
 })
 
 module.exports = router

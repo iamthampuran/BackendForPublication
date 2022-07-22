@@ -2,15 +2,16 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const PermPublicationSchema = new Schema({
-    Faculties:String,
-    Title:String,
-    Required:String,
-    DateOfApproval:Date,
+    Year: Number,
+    Title: String,
+    Faculties: String,
     Type: String,
     SubType: String,
-    PublicationName: String,
+    Name: String,
+    Details: String,
     ImpactFactor: String,
-    Affiliated: String
+    Affiliated: String,
+    Branch: String
 })
 
 const PermPublication = mongoose.model('Permanent Publication', PermPublicationSchema)
